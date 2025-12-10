@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timberline Trail Map</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(180deg, #1e40af 0%, #0f172a 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .toolbar h1 {
+            color: white;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-right: auto;
+        }
+
+        .zoom-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .zoom-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .zoom-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .zoom-btn:active {
+            transform: scale(0.95);
+        }
+
+        .zoom-level {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.875rem;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .reset-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 0.875rem;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .reset-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .map-container {
+            flex: 1;
+            overflow: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            cursor: grab;
+        }
+
+        .map-container:active {
+            cursor: grabbing;
+        }
+
+        .map-container img {
+            max-width: none;
+            transition: transform 0.2s ease;
+            transform-origin: center center;
+        }
+
+        .instructions {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.75rem;
+            margin-left: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="toolbar">
+        <h1>🗺️ Timberline Trail Map</h1>
+        <div class="zoom-controls">
+            <button class="zoom-btn" id="zoom-out" title="Zoom Out">−</button>
+            <span class="zoom-level" id="zoom-level">100%</span>
+            <button class="zoom-btn" id="zoom-in" title="Zoom In">+</button>
+        </div>
+        <button class="reset-btn" id="reset-zoom">Reset</button>
+        <span class="instructions">Scroll to zoom • Drag to pan</span>
+    </div>
+    <div class="map-container" id="map-container">
+        <img src="timberline_winter_trail_map.png" alt="Timberline Winter Trail Map" id="map-image">
+    </div>
+
+    <script>
+        const mapContainer = document.getElementById('map-container');
+        const mapImage = document.getElementById('map-image');
+        const zoomInBtn = document.getElementById('zoom-in');
+        const zoomOutBtn = document.getElementById('zoom-out');
+        const resetBtn = document.getElementById('reset-zoom');
+        const zoomLevelDisplay = document.getElementById('zoom-level');
+
+        let scale = 1;
+        const minScale = 0.25;
+        const maxScale = 4;
+        const scaleStep = 0.25;
+
+        // Panning state
+        let isPanning = false;
+        let startX, startY, scrollLeft, scrollTop;
+
+        function updateZoom() {
+            mapImage.style.transform = `scale(${scale})`;
+            zoomLevelDisplay.textContent = `${Math.round(scale * 100)}%`;
+        }
+
+        function zoomIn() {
+            if (scale < maxScale) {
+                scale = Math.min(scale + scaleStep, maxScale);
+                updateZoom();
+            }
+        }
+
+        function zoomOut() {
+            if (scale > minScale) {
+                scale = Math.max(scale - scaleStep, minScale);
+                updateZoom();
+            }
+        }
+
+        function resetZoom() {
+            scale = 1;
+            updateZoom();
+            mapContainer.scrollTo({
+                left: (mapContainer.scrollWidth - mapContainer.clientWidth) / 2,
+                top: (mapContainer.scrollHeight - mapContainer.clientHeight) / 2,
+                behavior: 'smooth'
+            });
+        }
+
+        // Button controls
+        zoomInBtn.addEventListener('click', zoomIn);
+        zoomOutBtn.addEventListener('click', zoomOut);
+        resetBtn.addEventListener('click', resetZoom);
+
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            if (e.key === '+' || e.key === '=') {
+                e.preventDefault();
+                zoomIn();
+            } else if (e.key === '-' || e.key === '_') {
+                e.preventDefault();
+                zoomOut();
+            } else if (e.key === '0') {
+                e.preventDefault();
+                resetZoom();
+            }
+        });
+
+        // Mouse wheel zoom
+        mapContainer.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            if (e.deltaY < 0) {
+                zoomIn();
+            } else {
+                zoomOut();
+            }
+        }, { passive: false });
+
+        // Panning with mouse drag
+        mapContainer.addEventListener('mousedown', (e) => {
+            isPanning = true;
+            mapContainer.style.cursor = 'grabbing';
+            startX = e.pageX - mapContainer.offsetLeft;
+            startY = e.pageY - mapContainer.offsetTop;
+            scrollLeft = mapContainer.scrollLeft;
+            scrollTop = mapContainer.scrollTop;
+        });
+
+        mapContainer.addEventListener('mouseleave', () => {
+            isPanning = false;
+            mapContainer.style.cursor = 'grab';
+        });
+
+        mapContainer.addEventListener('mouseup', () => {
+            isPanning = false;
+            mapContainer.style.cursor = 'grab';
+        });
+
+        mapContainer.addEventListener('mousemove', (e) => {
+            if (!isPanning) return;
+            e.preventDefault();
+            const x = e.pageX - mapContainer.offsetLeft;
+            const y = e.pageY - mapContainer.offsetTop;
+            const walkX = (x - startX) * 1.5;
+            const walkY = (y - startY) * 1.5;
+            mapContainer.scrollLeft = scrollLeft - walkX;
+            mapContainer.scrollTop = scrollTop - walkY;
+        });
+
+        // Center the image on load
+        mapImage.addEventListener('load', () => {
+            setTimeout(() => {
+                mapContainer.scrollTo({
+                    left: (mapContainer.scrollWidth - mapContainer.clientWidth) / 2,
+                    top: (mapContainer.scrollHeight - mapContainer.clientHeight) / 2
+                });
+            }, 100);
+        });
+    </script>
+
+    <footer
+        style="text-align: center; padding: 0.75rem; font-size: 0.75rem; color: rgba(255, 255, 255, 0.5); background: rgba(0, 0, 0, 0.2);">
+        <p>
+            All images are the property of
+            <a href="https://timberlinelodge.com/" target="_blank" rel="noopener"
+                style="color: rgba(255, 255, 255, 0.7); text-decoration: none;">Timberline Lodge</a>.
+            <a href="https://timberlinelodge.com/site/assets/files/6776/timberline_winter_trail_map.pdf" target="_blank"
+                rel="noopener" style="color: rgba(255, 255, 255, 0.7); text-decoration: none;">View Official Trail Map
+                (PDF)</a>
+        </p>
+    </footer>
+</body>
+
+</html>

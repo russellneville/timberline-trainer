@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Test your knowledge of Timberline ski runs, lifts, and geographic features with this interactive quiz.">
+    <title>Timberline Trail Quiz</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Map Display -->
+        <div class="map-container">
+            <img src="timberline-map-test.png" alt="Timberline Trail Map" class="map-image">
+        </div>
+
+        <!-- Quiz Container -->
+        <div class="quiz-container">
+            <!-- Start Screen -->
+            <div id="start-screen" class="screen active">
+                <div class="logo-container">
+                    <div class="mountain-icon">⛷️</div>
+                    <h1>Timberline Trail Quiz</h1>
+                    <p class="subtitle">Test your knowledge of runs, lifts & features</p>
+                </div>
+                <div class="start-form">
+                    <label for="question-count">How many questions?</label>
+                    <div class="input-group">
+                        <input type="number" id="question-count" min="1" max="58" value="10" placeholder="Enter number">
+                        <span class="max-hint">(max 58)</span>
+                    </div>
+                    <button id="start-btn" class="btn btn-primary">
+                        <span>Start Quiz</span>
+                        <span class="arrow">→</span>
+                    </button>
+                </div>
+                <div style="height: 300px;"></div>
+                <button id="reference-btn" class="btn btn-secondary reference-btn">
+                    <span class="icon">🗺️</span>
+                    <span>Reference Map (click to open)</span>
+                </button>
+                <!-- Reference popup (hover) -->
+                <div id="reference-popup" class="reference-popup">
+                    <img src="timberline_winter_trail_map.png" alt="Timberline Winter Trail Map Reference">
+                </div>
+            </div>
+
+            <!-- Quiz Screen -->
+            <div id="quiz-screen" class="screen">
+                <div class="quiz-header">
+                    <div class="progress-info">
+                        <span id="question-number">Question 1 of 10</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div id="progress-fill" class="progress-fill"></div>
+                    </div>
+                </div>
+                <div class="quiz-content">
+                    <div class="question-container">
+                        <button id="prev-btn" class="nav-btn prev-btn" aria-label="Previous question">
+                            <span class="arrow">‹</span>
+                        </button>
+                        <div class="question-card">
+                            <div class="input-wrapper">
+                                <input type="text" id="answer-input" class="answer-input" placeholder="___"
+                                    autocomplete="off">
+                            </div>
+                            <div class="feature-name" id="feature-name">Schoolyard</div>
+                        </div>
+                        <button id="next-btn" class="nav-btn next-btn" aria-label="Next question">
+                            <span class="arrow">›</span>
+                        </button>
+                        <button id="score-btn" class="btn btn-score hidden" aria-label="Score test">
+                            Score Test
+                        </button>
+                    </div>
+                </div>
+                <div style="height: 300px;"></div>
+                <button id="quiz-reference-btn" class="btn btn-secondary reference-btn">
+                    <span class="icon">🗺️</span>
+                    <span>Reference</span>
+                </button>
+                <!-- Reference popup (hover) for quiz screen -->
+                <div id="quiz-reference-popup" class="reference-popup">
+                    <img src="timberline_winter_trail_map.png" alt="Timberline Winter Trail Map Reference">
+                </div>
+            </div>
+
+            <!-- Results Screen -->
+            <div id="results-screen" class="screen">
+                <div id="celebration-container" class="celebration-container"></div>
+                <div class="results-header" id="results-header">
+                    <div class="result-icon" id="result-icon">🎉</div>
+                    <h2 id="result-title">Congratulations!</h2>
+                    <p id="result-subtitle">You passed the quiz!</p>
+                    <div class="score-display">
+                        <span id="score-text">8/10</span>
+                        <span class="score-percent" id="score-percent">(80%)</span>
+                    </div>
+                </div>
+                <div class="results-list-container">
+                    <ul id="results-list" class="results-list"></ul>
+                </div>
+                <div class="results-actions">
+                    <button id="retry-btn" class="btn btn-primary">
+                        <span>Try Again</span>
+                        <span class="arrow">↺</span>
+                    </button>
+                    <button id="results-reference-btn" class="btn btn-secondary reference-btn">
+                        <span class="icon">🗺️</span>
+                        <span>Reference</span>
+                    </button>
+                </div>
+                <!-- Reference popup (hover) for results screen -->
+                <div id="results-reference-popup" class="reference-popup">
+                    <img src="timberline_winter_trail_map.png" alt="Timberline Winter Trail Map Reference">
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Attribution -->
+        <footer class="attribution-footer">
+            <p>
+                All images are the property of
+                <a href="https://timberlinelodge.com/" target="_blank" rel="noopener">Timberline Lodge</a>.
+                <a href="https://timberlinelodge.com/site/assets/files/6776/timberline_winter_trail_map.pdf"
+                    target="_blank" rel="noopener">View Official Trail Map (PDF)</a>
+            </p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
