@@ -417,39 +417,6 @@ body {
     font-size: var(--font-size-xl);
 }
 
-/* Reference Popup */
-.reference-popup {
-    position: absolute;
-    bottom: calc(100% + var(--spacing-md));
-    left: 50%;
-    transform: translateX(-50%) scale(0.9);
-    opacity: 0;
-    visibility: hidden;
-    background: white;
-    border-radius: var(--radius-lg);
-    padding: var(--spacing-sm);
-    box-shadow: var(--shadow-xl);
-    transition: all var(--transition-base);
-    z-index: 100;
-    max-width: 90vw;
-    max-height: 70vh;
-    overflow: hidden;
-}
-
-.reference-popup img {
-    width: 100%;
-    max-width: 500px;
-    height: auto;
-    border-radius: var(--radius-md);
-}
-
-.reference-btn:hover+.reference-popup,
-.reference-popup:hover {
-    opacity: 1;
-    visibility: visible;
-    transform: translateX(-50%) scale(1);
-}
-
 /* ================================
    Quiz Screen
    ================================ */
@@ -825,7 +792,9 @@ body {
 .attribution-footer a:hover {
     color: var(--color-accent);
     text-decoration: underline;
-}/* ================================
+}
+
+/* ================================
    Scoring Mode Selection
    ================================ */
 .mode-selection {
