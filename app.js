@@ -497,10 +497,17 @@ document.addEventListener('keydown', (e) => {
         } else {
             goToNextQuestion();
         }
+    } else if (e.key === 'Enter') {
+        // Handle Enter when input is disabled (after scoring in 'go' mode)
+        if (state.scoreMode === 'go' && state.submittedIndices.has(state.currentIndex)) {
+            e.preventDefault(); // Prevent keypress from firing on the next focused input
+            if (state.currentIndex === state.totalQuestions - 1) {
+                scoreQuiz();
+            } else {
+                goToNextQuestion();
+            }
+        }
     }
-    // Note: Removed pure Enter listener duplication here as answerInput one handles it when focused.
-    // However, if focus is lost, we might want to capture Enter. But answerInput usually has focus.
-    // For safety, let's keep it simple.
 });
 
 // Results screen
