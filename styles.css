@@ -230,6 +230,70 @@ body {
     margin-bottom: var(--spacing-sm);
 }
 
+/* Title with Info Icon */
+.title-with-info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
+}
+
+.info-icon {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    font-size: 1.2rem;
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform var(--transition-base);
+    flex-shrink: 0;
+}
+
+.info-icon:hover {
+    transform: scale(1.15);
+}
+
+.info-popup {
+    position: absolute;
+    top: calc(100% + var(--spacing-sm));
+    left: 50%;
+    transform: translateX(-50%) scale(0.9);
+    opacity: 0;
+    visibility: hidden;
+    width: 280px;
+    padding: var(--spacing-md);
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xl);
+    font-size: var(--font-size-sm);
+    color: var(--color-snow);
+    line-height: 1.5;
+    text-align: center;
+    transition: all var(--transition-base);
+    z-index: 100;
+}
+
+.info-popup::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 8px solid transparent;
+    border-bottom-color: rgba(15, 23, 42, 0.95);
+}
+
+.info-icon:hover .info-popup {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) scale(1);
+}
+
 .subtitle {
     color: var(--color-slate);
     font-size: var(--font-size-lg);
