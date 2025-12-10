@@ -17,7 +17,7 @@ const quizData = [
     { id: '4', name: "Bean's Run", altNames: ['Beans Run', "Bean's"] },
     { id: '5', name: "Coffel's Run", altNames: ['Coffels Run', "Coffel's"] },
     { id: '6', name: "Kipp's Run", altNames: ['Kipps Run', "Kipp's"] },
-    { id: '7', name: 'Magic Mile' },
+    { id: '7', name: 'Magic Mile Lift' },
     { id: '8', name: "Gordo's Mile", altNames: ['Gordos Mile', "Gordo's"] },
     { id: '9', name: 'Otto Lang' },
     { id: '10', name: 'Lodge Getback' },
