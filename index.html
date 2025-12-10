@@ -46,6 +46,21 @@
                             placeholder="Enter a number 1 to 58">
                         <span class="max-hint">(max 58)</span>
                     </div>
+
+                    <div class="mode-selection">
+                        <label>Scoring Mode:</label>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="score-mode" value="end" checked>
+                                <span class="radio-text">Score at end</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="score-mode" value="go">
+                                <span class="radio-text">Score as you go</span>
+                            </label>
+                        </div>
+                    </div>
+
                     <button id="start-btn" class="btn btn-primary">
                         <span>Start Quiz</span>
                         <span class="arrow">→</span>
@@ -56,10 +71,6 @@
                     <span class="icon">🗺️</span>
                     <span>Reference Map (click to open)</span>
                 </button>
-                <!-- Reference popup (hover) -->
-                <div id="reference-popup" class="reference-popup">
-                    <img src="timberline_winter_trail_map.png" alt="Timberline Winter Trail Map Reference">
-                </div>
             </div>
 
             <!-- Quiz Screen -->
@@ -83,7 +94,11 @@
                                     autocomplete="off">
                             </div>
                             <div class="feature-name" id="feature-name">Schoolyard</div>
+                            <div id="feedback-msg" class="feedback-msg hidden"></div>
                         </div>
+                        <button id="check-btn" class="nav-btn check-btn hidden" aria-label="Check answer">
+                            <span class="icon">✓</span>
+                        </button>
                         <button id="next-btn" class="nav-btn next-btn" aria-label="Next question">
                             <span class="arrow">›</span>
                         </button>
@@ -97,10 +112,6 @@
                     <span class="icon">🗺️</span>
                     <span>Reference</span>
                 </button>
-                <!-- Reference popup (hover) for quiz screen -->
-                <div id="quiz-reference-popup" class="reference-popup">
-                    <img src="timberline_winter_trail_map.png" alt="Timberline Winter Trail Map Reference">
-                </div>
             </div>
 
             <!-- Results Screen -->
@@ -128,10 +139,6 @@
                         <span>Reference</span>
                     </button>
                 </div>
-                <!-- Reference popup (hover) for results screen -->
-                <div id="results-reference-popup" class="reference-popup">
-                    <img src="timberline_winter_trail_map.png" alt="Timberline Winter Trail Map Reference">
-                </div>
             </div>
         </div>
 
@@ -147,6 +154,7 @@
     </div>
 
     <script src="app.js"></script>
+    <script data-goatcounter="https://russellneville.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>
 
 </html>

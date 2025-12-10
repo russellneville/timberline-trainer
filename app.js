@@ -69,7 +69,9 @@ let state = {
     questions: [],
     currentIndex: 0,
     answers: {},
-    totalQuestions: 10
+    totalQuestions: 10,
+    scoreMode: 'end', // 'end' or 'go'
+    submittedIndices: new Set() // Track questions answered in 'go' mode
 };
 
 // DOM Elements
@@ -82,15 +84,18 @@ const elements = {
     // Start screen
     questionCountInput: document.getElementById('question-count'),
     startBtn: document.getElementById('start-btn'),
+    scoreModeRadios: document.getElementsByName('score-mode'),
 
     // Quiz screen
     questionNumber: document.getElementById('question-number'),
     progressFill: document.getElementById('progress-fill'),
     prevBtn: document.getElementById('prev-btn'),
     nextBtn: document.getElementById('next-btn'),
+    checkBtn: document.getElementById('check-btn'),
     scoreBtn: document.getElementById('score-btn'),
     answerInput: document.getElementById('answer-input'),
     featureName: document.getElementById('feature-name'),
+    feedbackMsg: document.getElementById('feedback-msg'),
 
     // Results screen
     resultsHeader: document.getElementById('results-header'),
@@ -145,10 +150,22 @@ function showScreen(screenElement) {
 
 function initQuiz() {
     const count = parseInt(elements.questionCountInput.value) || 10;
+
+    // Get selected score mode
+    let selectedMode = 'end';
+    for (const radio of elements.scoreModeRadios) {
+        if (radio.checked) {
+            selectedMode = radio.value;
+            break;
+        }
+    }
+
     state.totalQuestions = Math.min(Math.max(count, 1), quizData.length);
     state.questions = shuffleArray(quizData).slice(0, state.totalQuestions);
     state.currentIndex = 0;
     state.answers = {};
+    state.scoreMode = selectedMode;
+    state.submittedIndices = new Set();
 
     showScreen(elements.quizScreen);
     updateQuestion();
@@ -158,6 +175,7 @@ function updateQuestion() {
     const question = state.questions[state.currentIndex];
     const questionNum = state.currentIndex + 1;
     const total = state.totalQuestions;
+    const isSubmitted = state.submittedIndices.has(state.currentIndex);
 
     // Update progress
     elements.questionNumber.textContent = `Question ${questionNum} of ${total}`;
@@ -166,19 +184,77 @@ function updateQuestion() {
     // Update question content
     elements.featureName.textContent = question.name;
     elements.answerInput.value = state.answers[state.currentIndex] || '';
-    elements.answerInput.focus();
+
+    // Reset feedback
+    elements.feedbackMsg.textContent = '';
+    elements.feedbackMsg.className = 'feedback-msg hidden';
 
     // Update navigation buttons
     elements.prevBtn.disabled = state.currentIndex === 0;
 
-    // Show/hide next vs score button
-    if (state.currentIndex === state.totalQuestions - 1) {
-        elements.nextBtn.classList.add('hidden');
-        elements.scoreBtn.classList.remove('hidden');
+    // Handle "Score As You Go" Logic
+    if (state.scoreMode === 'go') {
+        if (isSubmitted) {
+            // Already answered, show feedback and next/score button
+            showFeedback(state.answers[state.currentIndex], question.id);
+            elements.answerInput.disabled = true; // Prevent changing answer
+
+            elements.checkBtn.classList.add('hidden');
+
+            if (state.currentIndex === state.totalQuestions - 1) {
+                elements.nextBtn.classList.add('hidden');
+                elements.scoreBtn.classList.remove('hidden');
+            } else {
+                elements.nextBtn.classList.remove('hidden');
+                elements.scoreBtn.classList.add('hidden');
+            }
+        } else {
+            // Not yet answered, show input and check button
+            elements.answerInput.disabled = false;
+            elements.answerInput.focus();
+
+            elements.checkBtn.classList.remove('hidden');
+            elements.nextBtn.classList.add('hidden');
+            elements.scoreBtn.classList.add('hidden');
+        }
     } else {
-        elements.nextBtn.classList.remove('hidden');
-        elements.scoreBtn.classList.add('hidden');
+        // "Score at End" Logic (standard)
+        elements.answerInput.disabled = false;
+        elements.answerInput.focus();
+        elements.checkBtn.classList.add('hidden');
+
+        if (state.currentIndex === state.totalQuestions - 1) {
+            elements.nextBtn.classList.add('hidden');
+            elements.scoreBtn.classList.remove('hidden');
+        } else {
+            elements.nextBtn.classList.remove('hidden');
+            elements.scoreBtn.classList.add('hidden');
+        }
     }
+}
+
+function showFeedback(userAnswer, correctId) {
+    const isCorrect = checkAnswer(userAnswer, correctId);
+    elements.feedbackMsg.classList.remove('hidden');
+
+    if (isCorrect) {
+        elements.feedbackMsg.textContent = "That's correct!";
+        elements.feedbackMsg.classList.add('correct');
+        elements.feedbackMsg.classList.remove('incorrect');
+    } else {
+        elements.feedbackMsg.textContent = `${correctId} is the correct answer`;
+        elements.feedbackMsg.classList.add('incorrect');
+        elements.feedbackMsg.classList.remove('correct');
+    }
+}
+
+function checkCurrentAnswer() {
+    saveCurrentAnswer();
+    // Only process if user has entered something? Or allow blank submission?
+    // Assuming allow, as standard quiz does.
+
+    state.submittedIndices.add(state.currentIndex);
+    updateQuestion(); // Will refresh UI to show result
 }
 
 function saveCurrentAnswer() {
@@ -187,7 +263,7 @@ function saveCurrentAnswer() {
 
 function goToPrevQuestion() {
     if (state.currentIndex > 0) {
-        saveCurrentAnswer();
+        if (state.scoreMode === 'end') saveCurrentAnswer();
         state.currentIndex--;
         updateQuestion();
     }
@@ -195,14 +271,14 @@ function goToPrevQuestion() {
 
 function goToNextQuestion() {
     if (state.currentIndex < state.totalQuestions - 1) {
-        saveCurrentAnswer();
+        if (state.scoreMode === 'end') saveCurrentAnswer();
         state.currentIndex++;
         updateQuestion();
     }
 }
 
 function scoreQuiz() {
-    saveCurrentAnswer();
+    if (state.scoreMode === 'end') saveCurrentAnswer();
 
     let correctCount = 0;
     const results = state.questions.map((question, index) => {
@@ -380,14 +456,29 @@ elements.questionCountInput.addEventListener('keypress', (e) => {
 elements.prevBtn.addEventListener('click', goToPrevQuestion);
 elements.nextBtn.addEventListener('click', goToNextQuestion);
 elements.scoreBtn.addEventListener('click', scoreQuiz);
+elements.checkBtn.addEventListener('click', checkCurrentAnswer);
 
 // Keyboard navigation
 elements.answerInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
-        if (state.currentIndex === state.totalQuestions - 1) {
-            scoreQuiz();
+        if (state.scoreMode === 'go') {
+            const isSubmitted = state.submittedIndices.has(state.currentIndex);
+            if (!isSubmitted) {
+                checkCurrentAnswer();
+            } else {
+                if (state.currentIndex === state.totalQuestions - 1) {
+                    scoreQuiz();
+                } else {
+                    goToNextQuestion();
+                }
+            }
         } else {
-            goToNextQuestion();
+            // Original 'end' mode behavior
+            if (state.currentIndex === state.totalQuestions - 1) {
+                scoreQuiz();
+            } else {
+                goToNextQuestion();
+            }
         }
     }
 });
@@ -398,13 +489,25 @@ document.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowLeft' && state.currentIndex > 0) {
         goToPrevQuestion();
     } else if (e.key === 'ArrowRight' && state.currentIndex < state.totalQuestions - 1) {
-        goToNextQuestion();
+        // In 'go' mode, only allow forward arrow if submitted
+        if (state.scoreMode === 'go') {
+            if (state.submittedIndices.has(state.currentIndex)) {
+                goToNextQuestion();
+            }
+        } else {
+            goToNextQuestion();
+        }
     }
+    // Note: Removed pure Enter listener duplication here as answerInput one handles it when focused.
+    // However, if focus is lost, we might want to capture Enter. But answerInput usually has focus.
+    // For safety, let's keep it simple.
 });
 
 // Results screen
 elements.retryBtn.addEventListener('click', () => {
     elements.celebrationContainer.innerHTML = '';
+    // Reset radio to default or keep previous selection? Usually reset is cleaner or just leave as is.
+    // User didn't specify, so keeping UI as is.
     showScreen(elements.startScreen);
 });
 
